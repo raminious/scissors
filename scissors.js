@@ -66,7 +66,7 @@ function proxyStream (a, b) {
  * Constructor of Command instance
  * @inner
  * @constructor
- * @param {mixed} input Should be either a filename (string) or a pipe. If it's 
+ * @param {mixed} input Should be either a filename (string) or a pipe. If it's
  * a pipe, this.stream is set to that value, otherwise null.
 
  * @param {Boolean} ready Whether the command has been fully executed
@@ -213,7 +213,7 @@ Command.prototype.rotate = function (amount) {
     case 180: case -180: dir = 'SOUTH'; break;
     case -90: case 270: dir = 'WEST'; break;
     case 0: return this;
-    default: 
+    default:
     throw new Error("Invalid rotation angle: " + amount);
   }
   return cmd._push([
@@ -267,7 +267,7 @@ Command.prototype.repair = function () {
 };
 
 /**
- * Crops the input to a box defined by two x-y coordinates (left bottom / 
+ * Crops the input to a box defined by two x-y coordinates (left bottom /
  * right top) in pt (72 points == 1 inch == 25.4 millimeters, 1mm = 2,8pt),
  * measured from the bottom left (coordinates 0,0).
  * Doesn't work with all PDFs yet, see // https://github.com/tcr/scissors/issues/21
@@ -473,9 +473,9 @@ Command.prototype.textStream = function () {
 /**
  * Returns a stream of image data, via the `pdfimages` command (called with `-j`).
  * The output format cannot be guaranteed. As per pdfimages documentation
- * (http://linuxcommand.org/man_pages/pdfimages1.html),  images in DCT format 
- * are  saved  as  JPEG  format. All  non-DCT images are saved are written as PBM 
- * (for monochrome  images) or  PPM  (for non-monochrome  images) files. 
+ * (http://linuxcommand.org/man_pages/pdfimages1.html),  images in DCT format
+ * are  saved  as  JPEG  format. All  non-DCT images are saved are written as PBM
+ * (for monochrome  images) or  PPM  (for non-monochrome  images) files.
  * NOTE: The current implementation is pretty costly and is dependent on an additional
  * dependency (pdfimages). Preferrably, this would be done in Ghostscript.
  * @param  {Number=} [0] i The number of the image to be extracted, defaults to 0.
@@ -562,14 +562,14 @@ Command.prototype.propertyStream = function () {
  */
 Command.prototype._exec = function () {
   var stream = new Stream(), commands = this.commands.slice();
-    
+
   stream.on('error', function (err) {
     console.error(err.message);
   })
-    
-  // Note: this.stream is either a pipe or null. If it's a pipe, it's piped into the 
-  // object as stdin. (Otherwise the command would receive no stdin) And _input 
-  // is used as the input argument to the command, either the filename or - to 
+
+  // Note: this.stream is either a pipe or null. If it's a pipe, it's piped into the
+  // object as stdin. (Otherwise the command would receive no stdin) And _input
+  // is used as the input argument to the command, either the filename or - to
   // mean stdin, accordingly.
   var initialValue = this.stream;
   this.onready(function () {
@@ -623,9 +623,9 @@ Command.prototype.getNumPages = function() {
 
 /**
  * Returns an array of objects containing the dimension of the page.
- * Requires the imagemagick package, containing the `identify` command line 
+ * Requires the imagemagick package, containing the `identify` command line
  * utility
- * @return {Promise} Promise that resolves with an array of objects, each 
+ * @return {Promise} Promise that resolves with an array of objects, each
  * containing the properties 'width', 'height' and 'unit' unit being 'pt'.
  */
 Command.prototype.getPageSizes = function() {
@@ -664,7 +664,7 @@ Command.prototype.getPageSizes = function() {
     			    }
     			  });
     			  resolve(dimensions);
-    			});    			
+    			});
         })
         .on('error',function(err){
           reject(err);
@@ -696,10 +696,11 @@ scissors.join = function () {
   var outfile = joinTemp + '/' + (joinindex++) + '.pdf';
   var pdf = new Command(outfile, false);
 
-  async.map(args, function (arg, next) {
+  async.mapSeries(args, function (arg, next) {
     var file = joinTemp + '/' + (joinindex++) + '.pdf';
     arg.pdfStream()
       .pipe(fs.createWriteStream(file))
+      .on('error', next)
       .on('close', function () {
         next(null, file);
       });
